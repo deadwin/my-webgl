@@ -29,7 +29,7 @@ function createVertexShaderSource() {
     // an attribute is an input (in) to a vertex shader.
     // It will receive data from a buffer
     in vec4 a_position;
-     
+
     // all shaders have a main function
     void main() {
      
@@ -48,12 +48,15 @@ function createFragmentShaderSource() {
     // to pick one. highp is a good default. It means "high precision"
     precision highp float;
      
+    uniform vec4 u_color;
+
     // we need to declare an output for the fragment shader
     out vec4 outColor;
      
     void main() {
       // Just set the output to a constant reddish-purple
-      outColor = vec4(1, 0, 0.5, 1);
+    //   outColor = vec4(1, 0, 0.5, 1);
+        outColor = u_color;
     }
     `;
     return fragmentShaderSource;
@@ -109,7 +112,10 @@ function main() {
     let positions = [
         0, 0,
         0, 0.5,
-        -1, 0
+        -1, 0,
+        -1, 0,
+        -1, 0.5,
+        0, 0.5
     ];
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
@@ -138,9 +144,42 @@ function main() {
 
     gl.bindVertexArray(vao);
 
+
+
+    let colorLocation = gl.getUniformLocation(program, "u_color");
+
+    gl.uniform4f(colorLocation, Math.random(), Math.random(), Math.random(), 1);
+
+
     let primitiveType = gl.TRIANGLES;
     var offset = 0;
-    let count = 3;
+    let count = 6;
     gl.drawArrays(primitiveType, offset, count);
+
+    for (var ii = 0; ii < 50; ++ii) {
+        // Put a rectangle in the position buffer
+        setRectangle(gl, Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5);
+        // Set a random color.
+        gl.uniform4f(colorLocation, Math.random(), Math.random(), Math.random(), 1);
+        // Draw the rectangle.
+        var primitiveType1 = gl.TRIANGLES;
+        var offse1t = 0;
+        var count1 = 3;
+        gl.drawArrays(primitiveType1, offse1t, count1);
+    }
+}
+
+// Fill the buffer with the values that define a rectangle.
+function setRectangle(gl, x, y, width, height) {
+    var x1 = x;
+    var x2 = x + width;
+    var y1 = y;
+    var y2 = y + height;
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+        x1, y1,
+        x2, y1,
+        x1, y2,
+    ]), gl.STATIC_DRAW);
+
 }
 main();
